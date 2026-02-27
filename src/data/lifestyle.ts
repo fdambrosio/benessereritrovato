@@ -1,0 +1,43 @@
+import type { FoodHabitItem, LifestyleIndicator } from '@/types/test';
+
+export const foodHabitItems: FoodHabitItem[] = [
+  { id: 'zucchero', label: 'Zucchero in alimenti o bevande', hasFrequency: true },
+  { id: 'dolci', label: 'Alimenti con aggiunta di zucchero (cioccolato, dolci)', hasFrequency: true },
+  { id: 'sale', label: 'Sale aggiunto', hasFrequency: false },
+  { id: 'caffe', label: 'Caffè', hasFrequency: true },
+  { id: 'alcool', label: 'Alcool (vino, birra, liquori)', hasFrequency: true },
+  { id: 'fritti', label: 'Cibi fritti', hasFrequency: true },
+  { id: 'carne', label: 'Carne', hasFrequency: true },
+  { id: 'pesce', label: 'Pesce', hasFrequency: true },
+  { id: 'conservanti', label: 'Alimenti con additivi o conservanti (cibi in scatola o precotti)', hasFrequency: true },
+  { id: 'pane', label: 'Pane, crackers, grissini, fette biscottate', hasFrequency: true, hasVariant: true, variants: ['integrali', 'non integrali'] },
+  { id: 'pasta', label: 'Pasta', hasFrequency: true, hasVariant: true, variants: ['integrale', 'non integrale'] },
+  { id: 'legumi', label: 'Legumi', hasFrequency: true },
+  { id: 'latte', label: 'Latte', hasFrequency: true },
+  { id: 'formaggi', label: 'Formaggi (compreso parmigiano)', hasFrequency: true },
+  { id: 'acqua', label: 'Acqua (litri al giorno)', hasFrequency: true },
+  { id: 'bevande_zuccherate', label: 'Succhi o bevande zuccherate', hasFrequency: true },
+  { id: 'frutta', label: 'Frutta', hasFrequency: true },
+  { id: 'verdura_cruda', label: 'Verdura cruda', hasFrequency: true },
+  { id: 'verdura_cotta', label: 'Verdura cotta', hasFrequency: true },
+];
+
+export const lifestyleIndicators: LifestyleIndicator[] = [
+  { id: 'sigarette', label: 'Sigarette', hasNumericInput: true, numericLabel: 'al giorno' },
+  { id: 'ambiente_inquinato', label: 'Ambiente di lavoro inquinato (smog, rumore)' },
+  { id: 'analgesici', label: 'Analgesici', hasNumericInput: true, numericLabel: 'volte all\'anno' },
+  { id: 'antibiotici', label: 'Antibiotici', hasNumericInput: true, numericLabel: 'volte all\'anno' },
+  { id: 'risveglio_difficile', label: 'Risveglio lento o difficile' },
+  { id: 'bisogno_risveglio', label: 'Necessità di fumo o alimenti al risveglio' },
+  { id: 'sonno_insufficiente', label: 'Necessità di più ore di sonno' },
+  { id: 'insonnia', label: 'Insonnia' },
+  { id: 'astenia', label: 'Astenia o stordimento durante il giorno' },
+  { id: 'irritabile_digiuno', label: 'Nervoso o irritabile se a digiuno' },
+  { id: 'irritabile', label: 'Nervoso, irritabile, aggressivo' },
+  { id: 'sbalzi_umore', label: 'Frequenti sbalzi di umore' },
+  { id: 'ansia', label: 'Irrequieto/a, ansioso/a' },
+  { id: 'depressione', label: 'Depressione' },
+  { id: 'freddolosita', label: 'Freddolosità' },
+  { id: 'basso_livello_energia', label: 'Basso livello di energia' },
+  { id: 'mal_di_testa', label: 'Mal di testa frequente' },
+];

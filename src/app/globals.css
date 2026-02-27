@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand-purple: #7516e3;
+  --color-brand-purple-dark: #650DD4;
+  --color-brand-lavender: #F5EDFF;
+  --color-brand-charcoal: #3B3B3B;
+  --color-brand-dark: #191919;
+  --color-brand-gray-light: #E2E2E2;
+  --color-brand-gray-medium: #5F5F5F;
+  --color-background: #ffffff;
+  --color-foreground: #3B3B3B;
+  --font-heading: var(--font-platypi);
+  --font-body: var(--font-ysabeau);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), serif;
+  color: var(--color-brand-dark);
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(117, 22, 227, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(117, 22, 227, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(117, 22, 227, 0); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s infinite;
 }

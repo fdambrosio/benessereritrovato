@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  nome           String
+  cognome        String
+  email          String
+  telefono       String?
+  eta            Int?
+  peso           Float?
+  altezza        Float?
+  citta          String?
+  privacyConsent Boolean @default(true)
+
+  locusAnswers               String
+  eventiSaluteAnswers        String
+  medicineAlternativeAnswers String
+  leadershipAnswers          String
+  selfAssessmentAnswers      String
+  lifestyleAnswers           String
+
+  locusScore                      Float
+  locusNormalized                 Float
+  eventiSaluteScore               Float
+  eventiSaluteNormalized          Float
+  medicineAlternativeScore        Float
+  medicineAlternativeNormalized   Float
+  leadershipScore                 Float
+  leadershipNormalized            Float
+  selfAssessmentAverage           Float
+
+  locusInterpretation    String
+  eventiInterpretation   String
+  medicineInterpretation String
+  leadershipInterpretation String
+
+  emailSent   Boolean @default(false)
+  adminViewed Boolean @default(false)
+  notes       String?
+}
