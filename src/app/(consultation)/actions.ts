@@ -7,6 +7,7 @@ import { eventiSaluteTest } from '@/data/tests/eventi-salute';
 import { medicineAlternativeTest } from '@/data/tests/medicine-alternative';
 import { leadershipTest } from '@/data/tests/leadership';
 import { selfAssessmentItems } from '@/data/self-assessment';
+import { liteSelfAssessmentItems } from '@/data/lite-questions';
 import { sendAdminNotification } from '@/lib/email/send';
 import type { AnswerValue } from '@/types/test';
 import type { PersonalData, LifestyleData } from '@/types/wizard';
@@ -18,28 +19,37 @@ interface SubmitData {
   medicineAlternativeAnswers: Record<number, AnswerValue>;
   leadershipAnswers: Record<number, AnswerValue>;
   selfAssessmentAnswers: Record<string, number>;
-  lifestyleData: LifestyleData;
+  lifestyleData?: LifestyleData;
+  isLite?: boolean;
 }
 
 export async function submitConsultation(data: SubmitData) {
+  const isLite = data.isLite ?? true;
+
   // Calculate scores for each test
+  // Use the actual number of answered questions for normalization
+  const locusAnsweredCount = Object.keys(data.locusAnswers).length;
   const locusRaw = calculateRawScore(data.locusAnswers, locusOfControlTest.questions);
-  const locusNorm = normalizeScore(locusRaw, locusOfControlTest.questions.length, locusOfControlTest.fullScoreRange);
+  const locusNorm = normalizeScore(locusRaw, locusAnsweredCount, locusOfControlTest.fullScoreRange);
   const locusInterp = getInterpretation(locusNorm, locusOfControlTest.interpretations);
 
+  const eventiAnsweredCount = Object.keys(data.eventiSaluteAnswers).length;
   const eventiRaw = calculateRawScore(data.eventiSaluteAnswers, eventiSaluteTest.questions);
-  const eventiNorm = normalizeScore(eventiRaw, eventiSaluteTest.questions.length, eventiSaluteTest.fullScoreRange);
+  const eventiNorm = normalizeScore(eventiRaw, eventiAnsweredCount, eventiSaluteTest.fullScoreRange);
   const eventiInterp = getInterpretation(eventiNorm, eventiSaluteTest.interpretations);
 
+  const medicineAnsweredCount = Object.keys(data.medicineAlternativeAnswers).length;
   const medicineRaw = calculateRawScore(data.medicineAlternativeAnswers, medicineAlternativeTest.questions);
-  const medicineNorm = normalizeScore(medicineRaw, medicineAlternativeTest.questions.length, medicineAlternativeTest.fullScoreRange);
+  const medicineNorm = normalizeScore(medicineRaw, medicineAnsweredCount, medicineAlternativeTest.fullScoreRange);
   const medicineInterp = getInterpretation(medicineNorm, medicineAlternativeTest.interpretations);
 
+  const leadershipAnsweredCount = Object.keys(data.leadershipAnswers).length;
   const leadershipRaw = calculateRawScore(data.leadershipAnswers, leadershipTest.questions);
-  const leadershipNorm = normalizeScore(leadershipRaw, leadershipTest.questions.length, leadershipTest.fullScoreRange);
+  const leadershipNorm = normalizeScore(leadershipRaw, leadershipAnsweredCount, leadershipTest.fullScoreRange);
   const leadershipInterp = getInterpretation(leadershipNorm, leadershipTest.interpretations);
 
-  const selfAssessmentAvg = calculateSelfAssessmentAverage(data.selfAssessmentAnswers, selfAssessmentItems);
+  const saItems = isLite ? liteSelfAssessmentItems : selfAssessmentItems;
+  const selfAssessmentAvg = calculateSelfAssessmentAverage(data.selfAssessmentAnswers, saItems);
 
   // Save to database
   const submission = await prisma.submission.create({
@@ -58,7 +68,9 @@ export async function submitConsultation(data: SubmitData) {
       medicineAlternativeAnswers: JSON.stringify(data.medicineAlternativeAnswers),
       leadershipAnswers: JSON.stringify(data.leadershipAnswers),
       selfAssessmentAnswers: JSON.stringify(data.selfAssessmentAnswers),
-      lifestyleAnswers: JSON.stringify(data.lifestyleData),
+      lifestyleAnswers: JSON.stringify(data.lifestyleData ?? {}),
+
+      isLite: data.isLite ?? true,
 
       locusScore: locusRaw,
       locusNormalized: locusNorm,
@@ -87,7 +99,7 @@ export async function submitConsultation(data: SubmitData) {
       medicineInterp,
       leadershipInterp,
       selfAssessmentAvg,
-      lifestyleData: data.lifestyleData,
+      lifestyleData: data.lifestyleData ?? ({} as LifestyleData),
     });
     emailSent = true;
     await prisma.submission.update({

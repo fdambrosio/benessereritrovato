@@ -41,6 +41,13 @@ export interface WizardState {
 export const WIZARD_STEPS = [
   { path: '/consenso', label: 'Consenso', shortLabel: 'Consenso' },
   { path: '/dati-personali', label: 'Dati Personali', shortLabel: 'Dati' },
+  { path: '/questionario', label: 'Questionario', shortLabel: 'Test' },
+  { path: '/risultati', label: 'Risultati', shortLabel: 'Risultati' },
+] as const;
+
+export const FULL_WIZARD_STEPS = [
+  { path: '/consenso', label: 'Consenso', shortLabel: 'Consenso' },
+  { path: '/dati-personali', label: 'Dati Personali', shortLabel: 'Dati' },
   { path: '/locus-of-control', label: 'Locus of Control', shortLabel: 'Locus' },
   { path: '/eventi-salute', label: 'Eventi e Salute', shortLabel: 'Salute' },
   { path: '/medicine-alternative', label: 'Medicine Alternative', shortLabel: 'Medicine' },

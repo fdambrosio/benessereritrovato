@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import WizardShell from '@/components/wizard/WizardShell';
 import TestSection from '@/components/wizard/TestSection';
 import { useWizard } from '@/context/WizardContext';
-import { WIZARD_STEPS } from '@/types/wizard';
+import { FULL_WIZARD_STEPS } from '@/types/wizard';
 import { leadershipTest } from '@/data/tests/leadership';
 import type { AnswerValue } from '@/types/test';
 
@@ -32,11 +32,11 @@ export default function LeadershipPage() {
     setAttempted(true);
     if (!allAnswered) return;
     setLeadershipAnswers(answers);
-    router.push(WIZARD_STEPS[6].path);
+    router.push(FULL_WIZARD_STEPS[6].path);
   };
 
   const handleBack = () => {
-    router.push(WIZARD_STEPS[4].path);
+    router.push(FULL_WIZARD_STEPS[4].path);
   };
 
   return (

@@ -43,6 +43,7 @@ model Submission {
   medicineInterpretation String
   leadershipInterpretation String
 
+  isLite      Boolean @default(true)
   emailSent   Boolean @default(false)
   adminViewed Boolean @default(false)
   notes       String?

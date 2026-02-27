@@ -20,6 +20,7 @@ export default async function DashboardPage() {
       selfAssessmentAverage: true,
       adminViewed: true,
       emailSent: true,
+      isLite: true,
     },
   });
 
@@ -66,6 +67,7 @@ export default async function DashboardPage() {
                     <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Data</th>
                     <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Nome</th>
                     <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Email</th>
+                    <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Tipo</th>
                     <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Media Punteggi</th>
                     <th className="text-left px-4 py-3 font-medium text-brand-charcoal">Email</th>
                   </tr>
@@ -111,6 +113,17 @@ export default async function DashboardPage() {
                           </Link>
                         </td>
                         <td className="px-4 py-3 text-brand-gray-medium">{s.email}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              s.isLite
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-green-100 text-green-700'
+                            }`}
+                          >
+                            {s.isLite ? 'Lite' : 'Completa'}
+                          </span>
+                        </td>
                         <td className="px-4 py-3">
                           <span className="font-medium text-brand-charcoal">{avg}%</span>
                         </td>

@@ -73,7 +73,7 @@ export default function RisultatiPage() {
   const [chartReady, setChartReady] = useState(false);
 
   useEffect(() => {
-    setCurrentStep(8);
+    setCurrentStep(3);
   }, [setCurrentStep]);
 
   useEffect(() => {
@@ -250,7 +250,7 @@ export default function RisultatiPage() {
             Vuoi approfondire questi risultati?
           </h2>
           <p className="text-sm text-brand-gray-medium mb-5">
-            Scopri come un percorso personalizzato può aiutarti a migliorare il tuo benessere.
+            Prenota una consulenza approfondita con la Dott.ssa Loprieno per completare il tuo profilo di benessere e ricevere indicazioni personalizzate.
           </p>
           <a
             href="https://www.ilbenessereritrovato.it/"
@@ -258,7 +258,7 @@ export default function RisultatiPage() {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg bg-brand-purple text-white hover:bg-brand-purple-dark transition-colors"
           >
-            Scopri di più
+            Prenota una consulenza
           </a>
         </div>
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import WizardShell from '@/components/wizard/WizardShell';
 import SelfAssessmentSection from '@/components/wizard/SelfAssessmentSection';
 import { useWizard } from '@/context/WizardContext';
-import { WIZARD_STEPS } from '@/types/wizard';
+import { FULL_WIZARD_STEPS } from '@/types/wizard';
 import { selfAssessmentItems } from '@/data/self-assessment';
 
 export default function AutovalutazionePage() {
@@ -31,11 +31,11 @@ export default function AutovalutazionePage() {
     setAttempted(true);
     if (!allAnswered) return;
     setSelfAssessmentAnswers(answers);
-    router.push(WIZARD_STEPS[7].path);
+    router.push(FULL_WIZARD_STEPS[7].path);
   };
 
   const handleBack = () => {
-    router.push(WIZARD_STEPS[5].path);
+    router.push(FULL_WIZARD_STEPS[5].path);
   };
 
   return (

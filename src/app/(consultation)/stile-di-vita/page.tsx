@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import WizardShell from '@/components/wizard/WizardShell';
 import CheckboxItem from '@/components/ui/CheckboxItem';
 import { useWizard } from '@/context/WizardContext';
-import { WIZARD_STEPS } from '@/types/wizard';
+import { FULL_WIZARD_STEPS } from '@/types/wizard';
 import type { LifestyleData } from '@/types/wizard';
 import { foodHabitItems, lifestyleIndicators } from '@/data/lifestyle';
 import { submitConsultation } from '../actions';
@@ -126,10 +126,11 @@ export default function StileDiVitaPage() {
         leadershipAnswers: state.leadershipAnswers!,
         selfAssessmentAnswers: state.selfAssessmentAnswers!,
         lifestyleData: data,
+        isLite: false,
       });
 
       sessionStorage.setItem('submission-result', JSON.stringify(result));
-      router.push(WIZARD_STEPS[8].path);
+      router.push(FULL_WIZARD_STEPS[8].path);
     } catch (error) {
       console.error('Submission failed:', error);
       setSubmitError('Si è verificato un errore durante l\'invio. Riprova.');
@@ -139,7 +140,7 @@ export default function StileDiVitaPage() {
   };
 
   const handleBack = () => {
-    router.push(WIZARD_STEPS[6].path);
+    router.push(FULL_WIZARD_STEPS[6].path);
   };
 
   const textareaClass =

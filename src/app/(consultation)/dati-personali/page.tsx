@@ -131,56 +131,6 @@ export default function DatiPersonaliPage() {
             placeholder="Numero di telefono"
           />
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-brand-charcoal mb-1">Età</label>
-            <input
-              type="number"
-              value={form.eta}
-              onChange={(e) => updateField('eta', e.target.value)}
-              className={inputClass('eta')}
-              placeholder="Anni"
-              min="0"
-              max="120"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-brand-charcoal mb-1">Peso (kg)</label>
-            <input
-              type="number"
-              value={form.peso}
-              onChange={(e) => updateField('peso', e.target.value)}
-              className={inputClass('peso')}
-              placeholder="kg"
-              min="0"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-brand-charcoal mb-1">Altezza (cm)</label>
-            <input
-              type="number"
-              value={form.altezza}
-              onChange={(e) => updateField('altezza', e.target.value)}
-              className={inputClass('altezza')}
-              placeholder="cm"
-              min="0"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-brand-charcoal mb-1">Città</label>
-          <input
-            type="text"
-            value={form.citta}
-            onChange={(e) => updateField('citta', e.target.value)}
-            className={inputClass('citta')}
-            placeholder="La tua città"
-          />
-        </div>
       </div>
     </WizardShell>
   );

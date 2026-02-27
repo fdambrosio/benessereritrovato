@@ -57,6 +57,15 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             <h1 className="text-lg font-bold text-brand-dark">
               {submission.nome} {submission.cognome}
             </h1>
+            <span
+              className={`text-xs px-2.5 py-0.5 rounded-full ${
+                submission.isLite
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'bg-green-100 text-green-700'
+              }`}
+            >
+              {submission.isLite ? 'Lite' : 'Completa'}
+            </span>
           </div>
           <form action={logoutAction}>
             <button
@@ -87,6 +96,26 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             Compilato il {new Date(submission.createdAt).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
           </div>
         </section>
+
+        {/* Complete Consultation Banner */}
+        {submission.isLite && (
+          <section className="bg-amber-50 rounded-xl border border-amber-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-amber-800 mb-1">Consulenza preliminare (versione lite)</h2>
+                <p className="text-sm text-amber-700">
+                  Questa consulenza contiene solo 10 domande. Completa il questionario per ottenere un profilo di benessere completo.
+                </p>
+              </div>
+              <Link
+                href={`/admin/submission/${id}/completa`}
+                className="shrink-0 ml-4 px-4 py-2 text-sm font-medium rounded-lg bg-brand-purple text-white hover:bg-brand-purple-dark transition-colors"
+              >
+                Completa consulenza
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* Test Scores */}
         <section className="bg-white rounded-xl border border-gray-200 p-6">
