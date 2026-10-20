@@ -123,15 +123,23 @@ export default function RisultatiPage() {
   const eventiPercent = normalizeToPercent(scores.eventiSalute.normalized, eventiSaluteTest.fullScoreRange);
   const medicinePercent = normalizeToPercent(scores.medicineAlternative.normalized, medicineAlternativeTest.fullScoreRange);
   const leadershipPercent = normalizeToPercent(scores.leadership.normalized, leadershipTest.fullScoreRange);
-  const benesserePercent = Math.round((scores.selfAssessmentAverage / 10) * 100);
+  const answers = scores.selfAssessmentAnswers;
+  // Stress is inverted so that a higher value always means a more favourable state
+  const stressPercent = (11 - (answers.stress ?? 5)) * 10;
+  const felicitaPercent = (answers.felicita ?? 5) * 10;
 
   const radarData = [
     { axis: 'Autoefficacia', value: locusPercent },
     { axis: 'Salute', value: eventiPercent },
     { axis: 'Conoscenza', value: medicinePercent },
-    { axis: 'Leadership', value: leadershipPercent },
-    { axis: 'Benessere', value: benesserePercent },
+    { axis: 'Autonomia', value: leadershipPercent },
+    { axis: 'Gestione dello stress', value: stressPercent },
+    { axis: 'Felicità', value: felicitaPercent },
   ];
+
+  const lowestValue = Math.min(...radarData.map((d) => d.value));
+  const allEqual = radarData.every((d) => d.value === lowestValue);
+  const priorityAxes = radarData.filter((d) => d.value === lowestValue).map((d) => d.axis);
 
   const testCards = [
     {
@@ -244,21 +252,37 @@ export default function RisultatiPage() {
           </div>
         </div>
 
+        {/* Priority Area */}
+        <div className="bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-6">
+          <h3 className="text-base font-semibold text-brand-dark mb-2">Area prioritaria</h3>
+          {allEqual ? (
+            <p className="text-sm text-brand-gray-medium leading-relaxed">
+              Tutti e sei gli ambiti risultano in equilibrio: non emerge un’area critica da cui ripartire con priorità.
+            </p>
+          ) : (
+            <p className="text-sm text-brand-gray-medium leading-relaxed">
+              Il punto più basso del tuo profilo è{' '}
+              <span className="font-semibold text-brand-charcoal">{priorityAxes.join(' e ')}</span>{' '}
+              ({lowestValue}/100). Ripartire da quest’area può aiutarti a recuperare energia e chiarezza.
+            </p>
+          )}
+        </div>
+
         {/* CTA Section */}
         <div className="bg-brand-lavender rounded-xl p-6 sm:p-8 text-center">
           <h2 className="text-xl font-semibold text-brand-dark mb-3 font-[family-name:var(--font-platypi)]">
             Vuoi approfondire questi risultati?
           </h2>
           <p className="text-sm text-brand-gray-medium mb-5">
-            Prenota una consulenza approfondita con la Dott.ssa Loprieno per completare il tuo profilo di benessere e ricevere indicazioni personalizzate.
+            La Dott.ssa Loprieno ti contatterà personalmente per fissare data e ora della tua chiamata gratuita.
           </p>
           <a
-            href="https://www.ilbenessereritrovato.it/"
+            href="https://www.ilbenessereritrovato.it/prenota-un-colloquio-conoscitivo-gratuito/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg bg-brand-purple text-white hover:bg-brand-purple-dark transition-colors"
           >
-            Prenota una consulenza
+            Prenota la tua chiamata gratuita
           </a>
         </div>
 

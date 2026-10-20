@@ -70,7 +70,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <p>Nell&apos;ambito della consulenza vengono raccolti i seguenti dati:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Dati identificativi:</strong> nome, cognome, indirizzo email, numero di telefono (facoltativo)</li>
+              <li><strong>Dati identificativi:</strong> nome</li>
               <li><strong>Dati anagrafici:</strong> età, peso, altezza, città di residenza</li>
               <li><strong>Risposte ai questionari:</strong> questionari di autovalutazione su atteggiamento verso la salute, locus of control, medicine alternative, leadership</li>
               <li><strong>Dati sullo stile di vita:</strong> abitudini alimentari, indicatori di stile di vita, dieta giornaliera (nella versione completa)</li>

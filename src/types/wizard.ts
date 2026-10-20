@@ -2,13 +2,6 @@ import { AnswerValue } from './test';
 
 export interface PersonalData {
   nome: string;
-  cognome: string;
-  email: string;
-  telefono: string;
-  eta: string;
-  peso: string;
-  altezza: string;
-  citta: string;
 }
 
 export interface LifestyleData {

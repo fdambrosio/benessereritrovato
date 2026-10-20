@@ -55,7 +55,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
               &larr; Dashboard
             </Link>
             <h1 className="text-lg font-bold text-brand-dark">
-              {submission.nome} {submission.cognome}
+              {submission.nome}{submission.cognome ? ` ${submission.cognome}` : ''}
             </h1>
             <span
               className={`text-xs px-2.5 py-0.5 rounded-full ${
@@ -84,8 +84,8 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Dati Personali</h2>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div><span className="text-brand-gray-medium">Nome:</span> <strong>{submission.nome}</strong></div>
-            <div><span className="text-brand-gray-medium">Cognome:</span> <strong>{submission.cognome}</strong></div>
-            <div><span className="text-brand-gray-medium">Email:</span> <strong>{submission.email}</strong></div>
+            <div><span className="text-brand-gray-medium">Cognome:</span> <strong>{submission.cognome || '—'}</strong></div>
+            <div><span className="text-brand-gray-medium">Email:</span> <strong>{submission.email || '—'}</strong></div>
             <div><span className="text-brand-gray-medium">Telefono:</span> <strong>{submission.telefono || '—'}</strong></div>
             <div><span className="text-brand-gray-medium">Età:</span> <strong>{submission.eta ?? '—'}</strong></div>
             <div><span className="text-brand-gray-medium">Peso:</span> <strong>{submission.peso ? `${submission.peso} kg` : '—'}</strong></div>

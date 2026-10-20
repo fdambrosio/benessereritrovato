@@ -109,10 +109,10 @@ export default async function DashboardPage() {
                             href={`/admin/submission/${s.id}`}
                             className="font-medium text-brand-dark hover:text-brand-purple transition-colors"
                           >
-                            {s.cognome} {s.nome}
+                            {s.nome}{s.cognome ? ` ${s.cognome}` : ''}
                           </Link>
                         </td>
-                        <td className="px-4 py-3 text-brand-gray-medium">{s.email}</td>
+                        <td className="px-4 py-3 text-brand-gray-medium">{s.email ?? '—'}</td>
                         <td className="px-4 py-3">
                           <span
                             className={`text-xs px-2 py-0.5 rounded-full ${

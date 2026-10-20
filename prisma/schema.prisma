@@ -12,8 +12,8 @@ model Submission {
   createdAt DateTime @default(now())
 
   nome           String
-  cognome        String
-  email          String
+  cognome        String?
+  email          String?
   telefono       String?
   eta            Int?
   peso           Float?

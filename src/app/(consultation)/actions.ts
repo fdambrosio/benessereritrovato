@@ -17,14 +17,7 @@ const answerValueSchema = z.enum(['A', 'B', 'C', 'D']);
 
 const submitDataSchema = z.object({
   personalData: z.object({
-    nome: z.string().min(1).max(100),
-    cognome: z.string().min(1).max(100),
-    email: z.email(),
-    telefono: z.string().max(20),
-    eta: z.string().max(10),
-    peso: z.string().max(10),
-    altezza: z.string().max(10),
-    citta: z.string().max(100),
+    nome: z.string().trim().min(1).max(100),
   }),
   locusAnswers: z.record(z.string(), answerValueSchema),
   eventiSaluteAnswers: z.record(z.string(), answerValueSchema),
@@ -82,14 +75,7 @@ export async function submitConsultation(data: SubmitData) {
   // Save to database
   const submission = await prisma.submission.create({
     data: {
-      nome: data.personalData.nome,
-      cognome: data.personalData.cognome,
-      email: data.personalData.email,
-      telefono: data.personalData.telefono || null,
-      eta: data.personalData.eta ? parseInt(data.personalData.eta) : null,
-      peso: data.personalData.peso ? parseFloat(data.personalData.peso) : null,
-      altezza: data.personalData.altezza ? parseFloat(data.personalData.altezza) : null,
-      citta: data.personalData.citta || null,
+      nome: parsed.data.personalData.nome,
 
       locusAnswers: JSON.stringify(data.locusAnswers),
       eventiSaluteAnswers: JSON.stringify(data.eventiSaluteAnswers),

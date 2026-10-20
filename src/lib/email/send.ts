@@ -6,8 +6,8 @@ interface AdminNotificationData {
   submission: {
     id: string;
     nome: string;
-    cognome: string;
-    email: string;
+    cognome: string | null;
+    email: string | null;
     telefono: string | null;
     eta: number | null;
     peso: number | null;
@@ -59,8 +59,8 @@ export async function sendAdminNotification(data: AdminNotificationData) {
   <div style="border: 1px solid #E2E2E2; border-top: none; padding: 20px; border-radius: 0 0 8px 8px;">
     <h2 style="color: #7516e3; font-size: 18px; margin-top: 0;">Dati Personali</h2>
     <table style="width: 100%; border-collapse: collapse;">
-      <tr><td style="padding: 4px 8px; font-weight: bold;">Nome:</td><td>${s.nome} ${s.cognome}</td></tr>
-      <tr><td style="padding: 4px 8px; font-weight: bold;">Email:</td><td>${s.email}</td></tr>
+      <tr><td style="padding: 4px 8px; font-weight: bold;">Nome:</td><td>${s.nome}${s.cognome ? ' ' + s.cognome : ''}</td></tr>
+      ${s.email ? `<tr><td style="padding: 4px 8px; font-weight: bold;">Email:</td><td>${s.email}</td></tr>` : ''}
       ${s.telefono ? `<tr><td style="padding: 4px 8px; font-weight: bold;">Telefono:</td><td>${s.telefono}</td></tr>` : ''}
       ${s.eta ? `<tr><td style="padding: 4px 8px; font-weight: bold;">Et&agrave;:</td><td>${s.eta} anni</td></tr>` : ''}
       ${s.peso ? `<tr><td style="padding: 4px 8px; font-weight: bold;">Peso:</td><td>${s.peso} kg</td></tr>` : ''}
@@ -115,7 +115,7 @@ export async function sendAdminNotification(data: AdminNotificationData) {
   await transporter.sendMail({
     from: process.env.SMTP_FROM || 'consulenza@ilbenessereritrovato.it',
     to: process.env.SMTP_TO || 'roberta@ilbenessereritrovato.it',
-    subject: `Nuova consulenza: ${s.nome} ${s.cognome}`,
+    subject: `Nuova consulenza: ${s.nome}${s.cognome ? ' ' + s.cognome : ''}`,
     html,
   });
 }

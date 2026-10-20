@@ -128,7 +128,7 @@ export default function CompletaConsultazioneePage() {
         setLoading(false);
         return;
       }
-      setNome(`${sub.nome} ${sub.cognome}`);
+      setNome([sub.nome, sub.cognome].filter(Boolean).join(' '));
 
       // Pre-fill existing answers (convert string keys to numbers)
       const locusExisting: Record<number, AnswerValue> = {};

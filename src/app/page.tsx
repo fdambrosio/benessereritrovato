@@ -31,7 +31,7 @@ const jsonLd = {
           name: 'Quanto costa la consulenza preliminare?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'La consulenza preliminare online è completamente gratuita e richiede circa 10-15 minuti.',
+            text: 'La consulenza preliminare online è completamente gratuita e richiede circa 3 minuti.',
           },
         },
       ],
@@ -51,12 +51,11 @@ export default function Home() {
         <div className="max-w-[645px] mx-auto px-4 py-16 sm:py-24">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-dark font-[family-name:var(--font-platypi)] leading-tight">
-              Scopri il tuo percorso<br />
-              <span className="text-brand-purple">di benessere</span>
+              Dove si incastra la tua energia?<br />
+              <span className="text-brand-purple">Scoprilo con il Test delle 6A</span>
             </h1>
             <p className="mt-6 text-lg text-brand-gray-medium max-w-lg mx-auto leading-relaxed">
-              Una consulenza preliminare gratuita e riservata per conoscere meglio te stesso
-              e iniziare un percorso personalizzato verso il benessere psicofisico.
+              Scopri in 3 minuti dove stai perdendo energia e da quale area ripartire per ritrovare la tua chiarezza e vitalità
             </p>
 
             <div className="mt-10">
@@ -69,7 +68,7 @@ export default function Home() {
             </div>
 
             <p className="mt-4 text-sm text-brand-gray-medium">
-              Circa 10-15 minuti &middot; Completamente gratuita &middot; Risultati immediati
+              Circa 3 minuti &middot; Completamente gratuita &middot; Risultati immediati
             </p>
           </div>
         </div>
