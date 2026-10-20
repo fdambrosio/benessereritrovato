@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm">
+      <div className="bg-background rounded-xl shadow-lg p-8 w-full max-w-sm">
         <h1 className="text-2xl font-bold text-brand-dark text-center mb-2 font-[family-name:var(--font-platypi)]">
           Area Riservata
         </h1>
@@ -24,7 +24,7 @@ export default function LoginPage() {
             id="password"
             name="password"
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple bg-background text-foreground"
             placeholder="Inserisci la password"
           />
           {state?.error && (

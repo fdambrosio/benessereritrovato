@@ -97,7 +97,7 @@ export default function RisultatiPage() {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-[645px] mx-auto">
-          <div className="bg-white rounded-xl shadow-sm border border-brand-gray-light/30 p-8 text-center">
+          <div className="bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-8 text-center">
             <h2 className="text-xl font-semibold text-brand-dark mb-4 font-[family-name:var(--font-platypi)]">
               Risultati non disponibili
             </h2>
@@ -168,14 +168,14 @@ export default function RisultatiPage() {
     <div className="min-h-screen bg-gray-50 py-6 px-4 sm:py-12">
       <div className="max-w-[645px] mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-light/30 p-6 sm:p-8">
+        <div className="bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-6 sm:p-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-brand-dark font-[family-name:var(--font-platypi)] text-center">
             Ecco il tuo profilo di benessere{nome ? `, ${nome}` : ''}!
           </h1>
         </div>
 
         {/* Radar Chart */}
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-light/30 p-6 sm:p-8">
+        <div className="bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-6 sm:p-8">
           <h2 className="text-lg font-semibold text-brand-dark mb-4 font-[family-name:var(--font-platypi)]">
             Il tuo profilo a colpo d&apos;occhio
           </h2>
@@ -212,7 +212,7 @@ export default function RisultatiPage() {
           {testCards.map((card) => (
             <div
               key={card.title}
-              className={`bg-white rounded-xl shadow-sm border border-brand-gray-light/30 p-6 border-l-4 ${getBorderColor(card.interpretation, card.interpretations)}`}
+              className={`bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-6 border-l-4 ${getBorderColor(card.interpretation, card.interpretations)}`}
             >
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-base font-semibold text-brand-dark">{card.title}</h3>
@@ -231,7 +231,7 @@ export default function RisultatiPage() {
         </div>
 
         {/* Self Assessment Average */}
-        <div className="bg-white rounded-xl shadow-sm border border-brand-gray-light/30 p-6">
+        <div className="bg-background rounded-xl shadow-sm border border-brand-gray-light/30 p-6">
           <h3 className="text-base font-semibold text-brand-dark mb-2">Autovalutazione del Benessere</h3>
           <div className="flex items-center gap-4">
             <div className="text-3xl font-bold text-brand-purple">

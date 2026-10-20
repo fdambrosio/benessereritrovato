@@ -45,7 +45,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
+      <header className="bg-background border-b border-gray-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
@@ -80,7 +80,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
 
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
         {/* Personal Data */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Dati Personali</h2>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div><span className="text-brand-gray-medium">Nome:</span> <strong>{submission.nome}</strong></div>
@@ -118,7 +118,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         )}
 
         {/* Test Scores */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Punteggi Test</h2>
           <div className="space-y-4">
             {tests.map((t) => (
@@ -136,7 +136,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         </section>
 
         {/* Self Assessment */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-1">Autovalutazione</h2>
           <p className="text-sm text-brand-gray-medium mb-4">
             Media: <strong>{submission.selfAssessmentAverage.toFixed(1)}</strong> / 10
@@ -152,7 +152,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         </section>
 
         {/* Lifestyle */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Stile di Vita</h2>
 
           {lifestyle.foodHabits && (
@@ -213,7 +213,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         </section>
 
         {/* Admin Notes */}
-        <section className="bg-white rounded-xl border border-gray-200 p-6">
+        <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Note Private</h2>
           <form
             action={async (formData: FormData) => {
@@ -226,7 +226,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
               name="notes"
               defaultValue={submission.notes || ''}
               rows={4}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple resize-y"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple bg-background text-foreground resize-y"
               placeholder="Aggiungi note private su questa consulenza..."
             />
             <button

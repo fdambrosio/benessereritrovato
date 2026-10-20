@@ -1,10 +1,53 @@
 import Link from 'next/link';
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'HealthAndBeautyBusiness',
+      name: 'Il Benessere Ritrovato',
+      description: 'Consulenza preliminare gratuita per il benessere psicofisico. Test psicobiologici personalizzati e percorsi di benessere con la Dott.ssa Roberta Loprieno.',
+      url: 'https://www.ilbenessereritrovato.it',
+      founder: {
+        '@type': 'Person',
+        name: 'Dott.ssa Roberta Loprieno',
+        jobTitle: 'Naturopata',
+      },
+      email: 'consulenza@ilbenessereritrovato.it',
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Come funziona la consulenza?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'La consulenza si svolge in tre fasi: rispondi a una serie di questionari online, ricevi un profilo personalizzato con grafici e interpretazioni, e se lo desideri puoi prenotare un approfondimento con la Dott.ssa Loprieno.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Quanto costa la consulenza preliminare?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'La consulenza preliminare online è completamente gratuita e richiede circa 10-15 minuti.',
+          },
+        },
+      ],
+    },
+  ],
+};
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <main className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-brand-lavender via-white to-white">
+      <section aria-label="Introduzione alla consulenza" className="relative overflow-hidden bg-gradient-to-br from-brand-lavender via-background to-background">
         <div className="max-w-[645px] mx-auto px-4 py-16 sm:py-24">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-dark font-[family-name:var(--font-platypi)] leading-tight">
@@ -30,11 +73,11 @@ export default function Home() {
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Come funziona */}
-      <div className="max-w-[800px] mx-auto px-4 py-16">
-        <h2 className="text-2xl font-semibold text-brand-dark text-center font-[family-name:var(--font-platypi)] mb-12">
+      <section id="come-funziona" aria-labelledby="come-funziona-heading" className="max-w-[800px] mx-auto px-4 py-16">
+        <h2 id="come-funziona-heading" className="text-2xl font-semibold text-brand-dark text-center font-[family-name:var(--font-platypi)] mb-12">
           Come funziona
         </h2>
         <div className="grid sm:grid-cols-3 gap-8">
@@ -64,10 +107,10 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Footer disclaimer */}
-      <div className="bg-brand-lavender/50 py-8">
+      <footer className="bg-brand-lavender/50 py-8">
         <div className="max-w-[645px] mx-auto px-4 text-center">
           <p className="text-xs text-brand-gray-medium leading-relaxed">
             Questa consulenza preliminare non ha finalit&agrave; terapeutiche di tipo medico o psicologico.
@@ -78,9 +121,13 @@ export default function Home() {
               Il Benessere Ritrovato
             </a>
             {' '}&middot; Dott.ssa Roberta Loprieno
+            {' '}&middot;{' '}
+            <a href="/privacy-policy" className="text-brand-purple hover:underline">
+              Privacy Policy
+            </a>
           </p>
         </div>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }

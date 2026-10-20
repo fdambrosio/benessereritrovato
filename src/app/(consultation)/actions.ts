@@ -1,5 +1,6 @@
 'use server';
 
+import { z } from 'zod/v4';
 import { prisma } from '@/lib/db';
 import { calculateRawScore, normalizeScore, getInterpretation, calculateSelfAssessmentAverage } from '@/lib/scoring/engine';
 import { locusOfControlTest } from '@/data/tests/locus-of-control';
@@ -11,6 +12,28 @@ import { liteSelfAssessmentItems } from '@/data/lite-questions';
 import { sendAdminNotification } from '@/lib/email/send';
 import type { AnswerValue } from '@/types/test';
 import type { PersonalData, LifestyleData } from '@/types/wizard';
+
+const answerValueSchema = z.enum(['A', 'B', 'C', 'D']);
+
+const submitDataSchema = z.object({
+  personalData: z.object({
+    nome: z.string().min(1).max(100),
+    cognome: z.string().min(1).max(100),
+    email: z.email(),
+    telefono: z.string().max(20),
+    eta: z.string().max(10),
+    peso: z.string().max(10),
+    altezza: z.string().max(10),
+    citta: z.string().max(100),
+  }),
+  locusAnswers: z.record(z.string(), answerValueSchema),
+  eventiSaluteAnswers: z.record(z.string(), answerValueSchema),
+  medicineAlternativeAnswers: z.record(z.string(), answerValueSchema),
+  leadershipAnswers: z.record(z.string(), answerValueSchema),
+  selfAssessmentAnswers: z.record(z.string(), z.number().min(1).max(10)),
+  lifestyleData: z.any().optional(),
+  isLite: z.boolean().optional(),
+});
 
 interface SubmitData {
   personalData: PersonalData;
@@ -24,6 +47,11 @@ interface SubmitData {
 }
 
 export async function submitConsultation(data: SubmitData) {
+  // Validate input
+  const parsed = submitDataSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Dati non validi. Controlla i campi e riprova.');
+  }
   const isLite = data.isLite ?? true;
 
   // Calculate scores for each test

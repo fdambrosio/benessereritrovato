@@ -42,7 +42,10 @@ export default function ConsensoPage() {
             className="mt-1 w-4 h-4 rounded border-brand-gray-light text-brand-purple focus:ring-brand-purple accent-brand-purple"
           />
           <span className="text-sm text-brand-charcoal">
-            Acconsento al trattamento dei miei dati personali ai sensi del GDPR per le finalità della consulenza.
+            Acconsento al trattamento dei miei dati personali ai sensi del GDPR per le finalità della consulenza.{' '}
+            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-brand-purple hover:underline">
+              Leggi l&apos;informativa completa sulla privacy
+            </a>
           </span>
         </label>
 

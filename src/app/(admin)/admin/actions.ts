@@ -1,9 +1,10 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { verifyPassword, createToken, COOKIE_NAME } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { revalidatePath } from 'next/cache';
 import { calculateRawScore, normalizeScore, getInterpretation, calculateSelfAssessmentAverage } from '@/lib/scoring/engine';
 import { locusOfControlTest } from '@/data/tests/locus-of-control';
@@ -18,9 +19,15 @@ export async function loginAction(_prevState: { error: string } | null, formData
   const password = formData.get('password') as string;
   if (!password) return { error: 'Password richiesta' };
 
-  const envHash = process.env.ADMIN_PASSWORD_HASH;
-  if (!envHash) {
-    return { error: `ERRORE: ADMIN_PASSWORD_HASH non configurato nel .env.local` };
+  // Rate limiting
+  const headersList = await headers();
+  const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || headersList.get('x-real-ip')
+    || 'unknown';
+  const { allowed, retryAfterMs } = checkRateLimit(ip);
+  if (!allowed) {
+    const minutes = Math.ceil(retryAfterMs / 60000);
+    return { error: `Troppi tentativi. Riprova tra ${minutes} minut${minutes === 1 ? 'o' : 'i'}.` };
   }
 
   const valid = await verifyPassword(password);

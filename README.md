@@ -12,8 +12,12 @@ Applicazione web per la raccolta di consulenze preliminari di benessere naturopa
 4. [Metodologia scientifica e scoring](#metodologia-scientifica-e-scoring)
 5. [Interpretazione dei risultati](#interpretazione-dei-risultati)
 6. [Dashboard amministratore](#dashboard-amministratore)
-7. [Configurazione e avvio](#configurazione-e-avvio)
-8. [Configurazione email e produzione](#configurazione-email-e-produzione)
+7. [Sicurezza](#sicurezza)
+8. [Privacy e GDPR](#privacy-e-gdpr)
+9. [SEO](#seo)
+10. [Google Analytics e Cookie Consent](#google-analytics-e-cookie-consent)
+11. [Configurazione e avvio](#configurazione-e-avvio)
+12. [Configurazione email e produzione](#configurazione-email-e-produzione)
 
 ---
 
@@ -23,6 +27,7 @@ Applicazione web per la raccolta di consulenze preliminari di benessere naturopa
 |---|---|
 | `http://localhost:3000/` | Pagina di benvenuto → avvia la consulenza |
 | `http://localhost:3000/consenso` | Primo step del wizard (consenso) |
+| `http://localhost:3000/privacy-policy` | Informativa privacy GDPR |
 | `http://localhost:3000/admin/login` | Login area riservata admin |
 | `http://localhost:3000/admin/dashboard` | Dashboard (richiede autenticazione) |
 
@@ -238,6 +243,119 @@ Nella pagina di dettaglio:
 
 ---
 
+## Sicurezza
+
+### Security headers
+
+Il file `next.config.ts` configura i seguenti header di sicurezza su tutte le risposte HTTP:
+
+| Header | Valore |
+|---|---|
+| `X-Frame-Options` | `DENY` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
+| `Content-Security-Policy` | Permette `self`, Google Analytics, Google Fonts |
+
+### Rate limiting login admin
+
+Il login admin (`/admin/login`) applica un rate limiter in-memory che blocca l'IP dopo **5 tentativi falliti** per **15 minuti**. Implementato in `src/lib/rate-limit.ts`.
+
+### Validazione input con Zod
+
+La server action `submitConsultation` valida tutti i dati in ingresso con Zod:
+- Dati personali: nome/cognome (1-100 caratteri), email valida, telefono opzionale (max 20 caratteri)
+- Risposte test: valori `A`, `B`, `C`, `D`
+- Slider autovalutazione: numeri interi da 1 a 10
+
+### JWT secret obbligatorio
+
+`src/lib/auth.ts` e `src/middleware.ts` richiedono che la variabile `JWT_SECRET` sia impostata. Se manca, il server genera un errore esplicito invece di usare un fallback insicuro.
+
+---
+
+## Privacy e GDPR
+
+### Informativa privacy
+
+La pagina `/privacy-policy` contiene l'informativa completa ex Art. 13 GDPR in italiano. Include:
+
+- Titolare del trattamento (Dott.ssa Roberta Loprieno)
+- Finalità e base giuridica del trattamento
+- Categorie di dati raccolti
+- Periodo di conservazione (24 mesi)
+- Diritti dell'interessato (accesso, rettifica, cancellazione, portabilità, ecc.)
+- Informativa sui cookie
+
+### Link alla privacy policy
+
+L'informativa è linkata da:
+- **Pagina consenso** (`/consenso`): link nel checkbox GDPR, si apre in nuova tab
+- **Footer della home page**: link "Privacy Policy" nella sezione disclaimer
+
+---
+
+## SEO
+
+### Metadata
+
+Il root layout (`src/app/layout.tsx`) definisce metadata con:
+- `metadataBase` puntato al dominio di produzione
+- Template per titoli: `%s | Il Benessere Ritrovato`
+- Open Graph (tipo website, locale `it_IT`, immagine)
+- Twitter Card (`summary_large_image`)
+- Direttive robots (`index: true, follow: true`)
+
+### Structured data (JSON-LD)
+
+La home page include due schemi JSON-LD:
+- **HealthAndBeautyBusiness**: nome, descrizione, URL, fondatrice
+- **FAQPage**: domande frequenti sulla consulenza
+
+### Sitemap e robots.txt
+
+| File | Percorso generato | Contenuto |
+|---|---|---|
+| `src/app/sitemap.ts` | `/sitemap.xml` | Pagine pubbliche (home, privacy-policy, consenso) |
+| `src/app/robots.ts` | `/robots.txt` | Allow `/`, disallow `/admin/`, pagine wizard interne |
+
+### HTML semantico
+
+La home page usa tag semantici (`<main>`, `<section>` con `aria-label`, `<footer>`) per migliorare accessibilità e indicizzazione.
+
+---
+
+## Google Analytics e Cookie Consent
+
+### Google Analytics (GA4)
+
+Il componente `src/components/GoogleAnalytics.tsx` carica gli script `gtag.js` solo se:
+1. La variabile `NEXT_PUBLIC_GA_MEASUREMENT_ID` è impostata
+2. L'utente ha accettato i cookie (`localStorage.cookie-consent === 'accepted'`)
+
+Lo script è configurato con `anonymize_ip: true`.
+
+### Banner Cookie Consent
+
+Il componente `src/components/CookieConsent.tsx` mostra un banner fisso in basso alla prima visita. L'utente può:
+- **Accettare**: attiva Google Analytics e salva la preferenza
+- **Rifiutare**: nessun cookie analitico, solo tecnici
+
+Dopo la scelta il banner non riappare (preferenza salvata in `localStorage`). Il banner include un link alla privacy policy.
+
+### Configurazione
+
+Aggiungere il Measurement ID nell'ambiente:
+
+```env
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+Se la variabile non è impostata, Google Analytics non viene caricato (nessun errore).
+
+---
+
 ## Configurazione e avvio
 
 ### Prerequisiti
@@ -275,6 +393,9 @@ JWT_SECRET=<stringa-casuale-lunga-almeno-32-caratteri>
 
 # App
 NEXT_PUBLIC_APP_URL=https://[tuo-dominio]
+
+# Google Analytics (opzionale)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ### Come cambiare la password admin
@@ -328,26 +449,37 @@ src/
 │   ├── (consultation)/           Flusso wizard utente
 │   │   ├── consenso/             Step 1: consenso GDPR
 │   │   ├── dati-personali/       Step 2: dati personali
-│   │   ├── questionario/         Step 3: 10 domande lite (NUOVO)
+│   │   ├── questionario/         Step 3: 10 domande lite
 │   │   ├── risultati/            Step 4: risultati e radar chart
-│   │   └── actions.ts            Server action: salvataggio e scoring
-│   └── (admin)/admin/
-│       ├── login/                Login area riservata
-│       ├── dashboard/            Lista consulenze
-│       ├── submission/[id]/      Dettaglio singola consulenza
-│       │   └── completa/         Form consulenza completa (NUOVO)
-│       └── actions.ts            Server actions admin
+│   │   └── actions.ts            Server action: salvataggio, scoring, validazione Zod
+│   ├── (admin)/admin/
+│   │   ├── login/                Login area riservata
+│   │   ├── dashboard/            Lista consulenze
+│   │   ├── submission/[id]/      Dettaglio singola consulenza
+│   │   │   └── completa/         Form consulenza completa
+│   │   └── actions.ts            Server actions admin (con rate limiting)
+│   ├── privacy-policy/           Informativa GDPR ex Art. 13
+│   ├── sitemap.ts                Generazione sitemap.xml
+│   ├── robots.ts                 Generazione robots.txt
+│   ├── layout.tsx                Root layout (fonts, GA, cookie consent)
+│   └── page.tsx                  Home page (SEO, JSON-LD, HTML semantico)
+│
+├── components/
+│   ├── GoogleAnalytics.tsx       GA4 con gestione consenso cookie
+│   ├── CookieConsent.tsx         Banner consenso cookie
+│   └── ...                       UI components (Card, Button, ProgressBar, ecc.)
 │
 ├── data/
-│   ├── lite-questions.ts         10 domande selezionate per il lite (NUOVO)
+│   ├── lite-questions.ts         10 domande selezionate per il lite
 │   ├── self-assessment.ts        10 item autovalutazione (versione completa)
 │   ├── lifestyle.ts              Abitudini alimentari e stile di vita
-│   └── tests/                   Test completi (25+18+20+20 domande)
+│   └── tests/                    Test completi (25+18+20+20 domande)
 │
 ├── lib/
-│   ├── auth.ts                   Autenticazione admin (bcrypt + JWT)
+│   ├── auth.ts                   Autenticazione admin (bcrypt + JWT, no fallback)
 │   ├── db.ts                     Client Prisma (singleton)
 │   ├── email/send.ts             Notifica email admin
+│   ├── rate-limit.ts             Rate limiter in-memory per login
 │   └── scoring/engine.ts         Calcolo e normalizzazione punteggi
 │
 └── types/

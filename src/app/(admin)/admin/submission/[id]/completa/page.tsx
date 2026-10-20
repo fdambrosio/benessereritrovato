@@ -33,7 +33,7 @@ interface TestSectionData {
 function CollapsibleSection({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen ?? false);
   return (
-    <section className="bg-white rounded-xl border border-gray-200">
+    <section className="bg-background rounded-xl border border-gray-200">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -265,7 +265,7 @@ export default function CompletaConsultazioneePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
+      <header className="bg-background border-b border-gray-200 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
