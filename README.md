@@ -121,11 +121,11 @@ Prima di distribuire il codice, applicare la migrazione **PostgreSQL** al databa
 previsto per l'ambiente, dopo il backup:
 
 ```bash
-npx prisma migrate deploy
+npm run db:deploy
 npx prisma generate
 ```
 
-Non usare le vecchie indicazioni SQLite riportate più avanti per questa migrazione.
+Lo schema e le migrazioni usano PostgreSQL, non SQLite.
 La notifica email del nuovo test contiene solo il link all'area riservata,
 senza nome, risposte o punteggi.
 
@@ -457,7 +457,57 @@ Se SMTP non è configurato, le consulenze vengono comunque salvate nel database 
 
 Questa applicazione può essere pubblicata su qualsiasi piattaforma che supporti Node.js (Vercel, Railway, Render, VPS).
 
-**Nota importante per SQLite in produzione:** il database è un file locale (`dev.db`). Su piattaforme con filesystem effimero (Vercel) è necessario migrare a un database hosted (PostgreSQL via Neon, PlanetScale MySQL, ecc.) aggiornando il `provider` in `prisma/schema.prisma` e la `DATABASE_URL` corrispondente.
+Lo schema corrente usa **PostgreSQL**: su Vercel configurare `DATABASE_URL` con
+la connessione al database PostgreSQL hosted (per esempio Neon o Supabase).
+Il file locale SQLite `prisma/dev.db` non è il database usato da questo schema.
+Non cambiare provider e non usare `prisma migrate dev`, `prisma migrate reset`
+o `prisma db push` per aggiornare il database di produzione.
+
+#### Aggiornare il Test delle 6A su Vercel
+
+1. Eseguire un backup/snapshot del database dal pannello del provider.
+2. In **Vercel → Project → Settings → Environment Variables**, verificare che
+   `DATABASE_URL` sia configurata per **Production** e punti al database corretto.
+   Non copiare la connessione nei log, nel repository o in chat.
+   Le Preview devono usare un database distinto, mai quello di produzione.
+3. Pubblicare sul branch di produzione anche `prisma/schema.prisma` e l'intera
+   cartella `prisma/migrations`, oltre al codice e a `package.json`.
+4. Per applicare le migrazioni durante il deploy, impostare il **Build Command**
+   del progetto su:
+
+   ```bash
+   npm run db:deploy && npm run build
+   ```
+
+   Questo comando modifica il database indicato dalla `DATABASE_URL` del deploy:
+   prima di abilitarlo, verificare anche l'isolamento delle Preview.
+   In alternativa, eseguire `npm run db:deploy` da un ambiente fidato con
+   `DATABASE_URL` impostata sul database di produzione, quindi lasciare su Vercel
+   il Build Command `npm run build`.
+5. Avviare un nuovo deploy del commit aggiornato (al primo tentativo disabilitare
+   **Use existing Build Cache**, se disponibile). Nei log verificare l'esito
+   delle migrazioni e della generazione Prisma, poi attendere lo stato **Ready**
+   del deploy Production.
+6. Aprire `/questionario`: devono comparire le sei aree e le risposte
+   «Quasi sempre / Molto spesso», «Spesso», «Raramente», «Quasi mai / Mai».
+
+`npm run build` esegue sempre `prisma generate` prima di `next build`, per evitare
+che una cache di dipendenze contenga un Prisma Client precedente allo schema.
+La generazione aggiorna il client e i tipi TypeScript, **non** il database.
+`npm run db:deploy` applica solo le migrazioni ancora pendenti; quella delle 6A
+aggiunge `sixAAnswers` e rende facoltativi i vecchi punteggi, senza eliminare
+le consulenze esistenti.
+
+Se compare `Property 'sixAAnswers' does not exist`, il problema è il Prisma Client
+non rigenerato. Se il deploy fallisce, Vercel continua a servire l'ultimo deploy
+riuscito: vedere ancora le vecchie domande non dimostra un problema di cache del
+browser. Gli avvisi sui pacchetti e sulla convenzione `middleware` non sono
+l'errore TypeScript che blocca questa build.
+
+Se Prisma segnala migrazioni fallite, una storia divergente o un database
+preesistente senza cronologia delle migrazioni, interrompere il deploy e
+riconciliare la cronologia prima di riprovare: non usare reset o segnare
+migrazioni come applicate senza aver verificato lo schema.
 
 ---
 
