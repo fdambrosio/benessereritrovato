@@ -7,9 +7,10 @@ interface RadioGroupProps {
   options: { value: string; label: string }[];
   disabled?: boolean;
   error?: boolean;
+  showOptionLabels?: boolean;
 }
 
-export default function RadioGroup({ name, value, onChange, options, disabled, error }: RadioGroupProps) {
+export default function RadioGroup({ name, value, onChange, options, disabled, error, showOptionLabels }: RadioGroupProps) {
   return (
     <div className={`flex flex-col sm:flex-row gap-2 ${error ? 'ring-2 ring-red-400 rounded-lg p-1' : ''}`}>
       {options.map((option) => (
@@ -33,7 +34,7 @@ export default function RadioGroup({ name, value, onChange, options, disabled, e
             className="sr-only"
           />
           <span className="font-bold">{option.value}</span>
-          <span className="hidden sm:inline text-xs">{option.label}</span>
+          <span className={showOptionLabels ? 'text-xs' : 'hidden sm:inline text-xs'}>{option.label}</span>
         </label>
       ))}
     </div>

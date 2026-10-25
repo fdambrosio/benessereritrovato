@@ -2,18 +2,65 @@
 
 import { z } from 'zod/v4';
 import { prisma } from '@/lib/db';
-import { calculateRawScore, normalizeScore, getInterpretation, calculateSelfAssessmentAverage } from '@/lib/scoring/engine';
+import { calculateRawScore, normalizeScore, getInterpretation, calculateSelfAssessmentAverage, calculateSixAScores } from '@/lib/scoring/engine';
+import { sixAAnswersSchema, sixASelfAssessmentSchema, sixASelfAssessmentItems } from '@/data/six-a';
 import { locusOfControlTest } from '@/data/tests/locus-of-control';
 import { eventiSaluteTest } from '@/data/tests/eventi-salute';
 import { medicineAlternativeTest } from '@/data/tests/medicine-alternative';
 import { leadershipTest } from '@/data/tests/leadership';
 import { selfAssessmentItems } from '@/data/self-assessment';
 import { liteSelfAssessmentItems } from '@/data/lite-questions';
-import { sendAdminNotification } from '@/lib/email/send';
+import { sendAdminNotification, sendSixAAdminNotification } from '@/lib/email/send';
 import type { AnswerValue } from '@/types/test';
 import type { PersonalData, LifestyleData } from '@/types/wizard';
 
 const answerValueSchema = z.enum(['A', 'B', 'C', 'D']);
+
+const sixASubmitSchema = z.strictObject({
+  personalData: z.strictObject({ nome: z.string().trim().min(1).max(100) }),
+  sixAAnswers: sixAAnswersSchema,
+  selfAssessmentAnswers: sixASelfAssessmentSchema,
+});
+
+export async function submitSixAConsultation(data: z.input<typeof sixASubmitSchema>) {
+  const parsed = sixASubmitSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error('Dati non validi. Rispondi a tutte le 14 domande e controlla i campi.');
+  }
+  const { personalData, sixAAnswers, selfAssessmentAnswers } = parsed.data;
+  const areas = calculateSixAScores(sixAAnswers);
+  const selfAssessmentAverage = calculateSelfAssessmentAverage(selfAssessmentAnswers, sixASelfAssessmentItems);
+  const submission = await prisma.submission.create({
+    data: {
+      nome: personalData.nome,
+      sixAAnswers: JSON.stringify(sixAAnswers),
+      selfAssessmentAnswers: JSON.stringify(selfAssessmentAnswers),
+      selfAssessmentAverage,
+      locusAnswers: '{}',
+      eventiSaluteAnswers: '{}',
+      medicineAlternativeAnswers: '{}',
+      leadershipAnswers: '{}',
+      lifestyleAnswers: '{}',
+      isLite: false,
+    },
+  });
+
+  let emailSent = false;
+  try {
+    await sendSixAAdminNotification(submission.id);
+    await prisma.submission.update({ where: { id: submission.id }, data: { emailSent: true } });
+    emailSent = true;
+  } catch {
+    console.error('Invio della notifica Test delle 6A non riuscito.');
+  }
+
+  return {
+    version: '6a' as const,
+    submissionId: submission.id,
+    scores: { areas, selfAssessmentAverage, selfAssessmentAnswers },
+    emailSent,
+  };
+}
 
 const submitDataSchema = z.object({
   personalData: z.object({
@@ -107,7 +154,13 @@ export async function submitConsultation(data: SubmitData) {
   let emailSent = false;
   try {
     await sendAdminNotification({
-      submission,
+      submission: {
+        ...submission,
+        locusNormalized: locusNorm,
+        eventiSaluteNormalized: eventiNorm,
+        medicineAlternativeNormalized: medicineNorm,
+        leadershipNormalized: leadershipNorm,
+      },
       locusInterp,
       eventiInterp,
       medicineInterp,

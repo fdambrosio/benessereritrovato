@@ -9,6 +9,8 @@ import { medicineAlternativeTest } from '@/data/tests/medicine-alternative';
 import { leadershipTest } from '@/data/tests/leadership';
 import dynamic from 'next/dynamic';
 import type { ScoreInterpretation } from '@/types/test';
+import SixAProfile from '@/components/wizard/SixAProfile';
+import type { submitSixAConsultation } from '../actions';
 
 const ResponsiveContainer = dynamic(
   () => import('recharts').then((mod) => mod.ResponsiveContainer),
@@ -42,6 +44,7 @@ interface TestScore {
 }
 
 interface SubmissionResult {
+  version?: never;
   submissionId: string;
   scores: {
     locus: TestScore;
@@ -69,7 +72,7 @@ function getBorderColor(interpretation: ScoreInterpretation, interpretations: Sc
 
 export default function RisultatiPage() {
   const { state, setCurrentStep } = useWizard();
-  const [result, setResult] = useState<SubmissionResult | null>(null);
+  const [result, setResult] = useState<SubmissionResult | Awaited<ReturnType<typeof submitSixAConsultation>> | null>(null);
   const [chartReady, setChartReady] = useState(false);
 
   useEffect(() => {
@@ -116,9 +119,37 @@ export default function RisultatiPage() {
     );
   }
 
-  const { scores } = result;
   const nome = state.personalData?.nome ?? '';
 
+  if (result.version === '6a') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-6 px-4 sm:py-12">
+        <div className="max-w-[645px] mx-auto space-y-6">
+          <h1 className="text-2xl font-bold text-brand-dark text-center">
+            Il tuo profilo delle 6A{nome ? `, ${nome}` : ''}
+          </h1>
+          <SixAProfile {...result.scores} />
+          <div className="bg-brand-lavender rounded-xl p-6 text-center">
+            <h2 className="text-xl font-semibold text-brand-dark mb-3">Vuoi approfondire questi risultati?</h2>
+            <a
+              href="https://www.ilbenessereritrovato.it/prenota-un-colloquio-conoscitivo-gratuito/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex px-6 py-3 rounded-lg bg-brand-purple text-white hover:bg-brand-purple-dark"
+            >
+              Prenota la tua chiamata gratuita
+            </a>
+          </div>
+          <p className="text-xs text-brand-gray-medium text-center">
+            Questa consulenza non ha finalità terapeutiche di tipo medico o psicologico.
+            Le indicazioni vanno sottoposte alla valutazione del medico curante.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { scores } = result;
   const locusPercent = normalizeToPercent(scores.locus.normalized, locusOfControlTest.fullScoreRange);
   const eventiPercent = normalizeToPercent(scores.eventiSalute.normalized, eventiSaluteTest.fullScoreRange);
   const medicinePercent = normalizeToPercent(scores.medicineAlternative.normalized, medicineAlternativeTest.fullScoreRange);

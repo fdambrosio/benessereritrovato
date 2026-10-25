@@ -122,9 +122,13 @@ export default function CompletaConsultazioneePage() {
 
   useEffect(() => {
     async function load() {
-      const sub = await getSubmissionForCompletion(id);
+      const sub = await getSubmissionForCompletion(id).catch((error: unknown) => {
+        setError(error instanceof Error ? error.message : 'Impossibile aprire il completamento.');
+        setLoading(false);
+        return null;
+      });
       if (!sub) {
-        setError('Consulenza non trovata');
+        setError((current) => current || 'Consulenza non trovata');
         setLoading(false);
         return;
       }

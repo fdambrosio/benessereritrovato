@@ -27,21 +27,22 @@ model Submission {
   leadershipAnswers          String
   selfAssessmentAnswers      String
   lifestyleAnswers           String
+  sixAAnswers                String?
 
-  locusScore                      Float
-  locusNormalized                 Float
-  eventiSaluteScore               Float
-  eventiSaluteNormalized          Float
-  medicineAlternativeScore        Float
-  medicineAlternativeNormalized   Float
-  leadershipScore                 Float
-  leadershipNormalized            Float
+  locusScore                      Float?
+  locusNormalized                 Float?
+  eventiSaluteScore               Float?
+  eventiSaluteNormalized          Float?
+  medicineAlternativeScore        Float?
+  medicineAlternativeNormalized   Float?
+  leadershipScore                 Float?
+  leadershipNormalized            Float?
   selfAssessmentAverage           Float
 
-  locusInterpretation    String
-  eventiInterpretation   String
-  medicineInterpretation String
-  leadershipInterpretation String
+  locusInterpretation    String?
+  eventiInterpretation   String?
+  medicineInterpretation String?
+  leadershipInterpretation String?
 
   isLite      Boolean @default(true)
   emailSent   Boolean @default(false)

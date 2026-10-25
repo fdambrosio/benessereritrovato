@@ -41,6 +41,16 @@ function getTransporter() {
   });
 }
 
+export async function sendSixAAdminNotification(submissionId: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  await getTransporter().sendMail({
+    from: process.env.SMTP_FROM || 'consulenza@ilbenessereritrovato.it',
+    to: process.env.SMTP_TO || 'roberta@ilbenessereritrovato.it',
+    subject: 'Nuova consulenza: Test delle 6A',
+    text: `È stato completato un Test delle 6A. Consulta risposte e risultati nell'area riservata: ${appUrl}/admin/submission/${encodeURIComponent(submissionId)}`,
+  });
+}
+
 export async function sendAdminNotification(data: AdminNotificationData) {
   const { submission: s, locusInterp, eventiInterp, medicineInterp, leadershipInterp, selfAssessmentAvg } = data;
 

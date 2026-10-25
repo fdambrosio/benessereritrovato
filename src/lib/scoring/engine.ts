@@ -1,4 +1,13 @@
 import type { AnswerValue, ScoringDirection, QuestionConfig, ScoreInterpretation, SelfAssessmentItem } from '@/types/test';
+import { sixAAreas, sixAAnswersSchema } from '@/data/six-a';
+
+export function calculateSixAScores(answers: Record<number, AnswerValue>) {
+  const validated = sixAAnswersSchema.parse(answers);
+  return sixAAreas.map((area) => {
+    const raw = calculateRawScore(validated, area.questions);
+    return { id: area.id, label: area.label, raw, normalized: normalizeScore(raw, 2, { min: 0, max: 100 }) };
+  });
+}
 
 export function scoreAnswer(answer: AnswerValue, direction: ScoringDirection): number {
   const descending: Record<AnswerValue, number> = { A: 4, B: 3, C: 2, D: 1 };

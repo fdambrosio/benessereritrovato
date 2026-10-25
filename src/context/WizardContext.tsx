@@ -10,6 +10,7 @@ const initialState: WizardState = {
   currentStep: 0,
   consent: null,
   personalData: null,
+  sixAAnswers: null,
   locusAnswers: null,
   eventiSaluteAnswers: null,
   medicineAlternativeAnswers: null,
@@ -22,6 +23,7 @@ interface WizardContextType {
   state: WizardState;
   setConsent: (consent: { gdprAccepted: boolean; disclaimerAccepted: boolean }) => void;
   setPersonalData: (data: PersonalData) => void;
+  setSixAAnswers: (answers: Record<number, AnswerValue>) => void;
   setLocusAnswers: (answers: Record<number, AnswerValue>) => void;
   setEventiSaluteAnswers: (answers: Record<number, AnswerValue>) => void;
   setMedicineAlternativeAnswers: (answers: Record<number, AnswerValue>) => void;
@@ -44,7 +46,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as WizardState;
-        setState(parsed);
+        setState({ ...initialState, ...parsed });
       }
     } catch {
       // Ignore errors
@@ -73,6 +75,10 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
 
   const setLocusAnswers = useCallback((answers: Record<number, AnswerValue>) => {
     setState(prev => ({ ...prev, locusAnswers: answers }));
+  }, []);
+
+  const setSixAAnswers = useCallback((answers: Record<number, AnswerValue>) => {
+    setState(prev => ({ ...prev, sixAAnswers: answers }));
   }, []);
 
   const setEventiSaluteAnswers = useCallback((answers: Record<number, AnswerValue>) => {
@@ -118,6 +124,7 @@ export function WizardProvider({ children }: { children: React.ReactNode }) {
         state,
         setConsent,
         setPersonalData,
+        setSixAAnswers,
         setLocusAnswers,
         setEventiSaluteAnswers,
         setMedicineAlternativeAnswers,

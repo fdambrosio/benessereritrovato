@@ -23,6 +23,7 @@ export interface WizardState {
   currentStep: number;
   consent: { gdprAccepted: boolean; disclaimerAccepted: boolean } | null;
   personalData: PersonalData | null;
+  sixAAnswers: Record<number, AnswerValue> | null;
   locusAnswers: Record<number, AnswerValue> | null;
   eventiSaluteAnswers: Record<number, AnswerValue> | null;
   medicineAlternativeAnswers: Record<number, AnswerValue> | null;

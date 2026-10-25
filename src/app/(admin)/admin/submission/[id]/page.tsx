@@ -2,6 +2,10 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { logoutAction, updateNotesAction, toggleViewedAction } from '../../actions';
+import SixAProfile from '@/components/wizard/SixAProfile';
+import { calculateSixAScores } from '@/lib/scoring/engine';
+import { sixAAreas, sixAAnswersSchema, sixAOptions, sixASelfAssessmentSchema } from '@/data/six-a';
+import type { AnswerValue } from '@/types/test';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +26,9 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
 
   const lifestyle = JSON.parse(submission.lifestyleAnswers || '{}');
   const selfAssessment = JSON.parse(submission.selfAssessmentAnswers || '{}');
+  const sixAAnswers: Record<number, AnswerValue> | null = submission.sixAAnswers
+    ? sixAAnswersSchema.parse(JSON.parse(submission.sixAAnswers))
+    : null;
 
   const tests = [
     { name: 'Locus of Control', raw: submission.locusScore, norm: submission.locusNormalized, interp: submission.locusInterpretation, range: '25-100' },
@@ -64,7 +71,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                   : 'bg-green-100 text-green-700'
               }`}
             >
-              {submission.isLite ? 'Lite' : 'Completa'}
+              {sixAAnswers ? 'Test delle 6A' : submission.isLite ? 'Lite' : 'Completa'}
             </span>
           </div>
           <form action={logoutAction}>
@@ -98,7 +105,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         </section>
 
         {/* Complete Consultation Banner */}
-        {submission.isLite && (
+        {!sixAAnswers && submission.isLite && (
           <section className="bg-amber-50 rounded-xl border border-amber-200 p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -118,6 +125,28 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
         )}
 
         {/* Test Scores */}
+        {sixAAnswers ? (
+          <>
+            <SixAProfile
+              areas={calculateSixAScores(sixAAnswers)}
+              selfAssessmentAverage={submission.selfAssessmentAverage}
+              selfAssessmentAnswers={sixASelfAssessmentSchema.parse(selfAssessment)}
+            />
+            <section className="bg-background rounded-xl border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-brand-dark mb-4">Risposte al Test delle 6A</h2>
+              <ol className="space-y-4 text-sm">
+                {sixAAreas.flatMap((area) => area.questions).map((question) => (
+                  <li key={question.id}>
+                    <p>{question.id}. {question.text}</p>
+                    <p className="font-medium text-brand-purple mt-1">
+                      {sixAOptions.find((option) => option.value === sixAAnswers[question.id])?.label}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </>
+        ) : (
         <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Punteggi Test</h2>
           <div className="space-y-4">
@@ -126,7 +155,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
                 <div className="flex items-center justify-between mb-1">
                   <h3 className="font-medium text-brand-charcoal">{t.name}</h3>
                   <span className="text-sm text-brand-gray-medium">
-                    Raw: {t.raw.toFixed(1)} | Norm: {t.norm.toFixed(1)} ({t.range})
+                    Raw: {t.raw?.toFixed(1) ?? 'Non disponibile'} | Norm: {t.norm?.toFixed(1) ?? 'Non disponibile'} ({t.range})
                   </span>
                 </div>
                 <p className="text-sm text-brand-purple font-medium">{t.interp}</p>
@@ -134,9 +163,10 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             ))}
           </div>
         </section>
+        )}
 
         {/* Self Assessment */}
-        <section className="bg-background rounded-xl border border-gray-200 p-6">
+        {!sixAAnswers && <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-1">Autovalutazione</h2>
           <p className="text-sm text-brand-gray-medium mb-4">
             Media: <strong>{submission.selfAssessmentAverage.toFixed(1)}</strong> / 10
@@ -150,9 +180,10 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             ))}
           </div>
         </section>
+        }
 
         {/* Lifestyle */}
-        <section className="bg-background rounded-xl border border-gray-200 p-6">
+        {!sixAAnswers && <section className="bg-background rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-brand-dark mb-4">Stile di Vita</h2>
 
           {lifestyle.foodHabits && (
@@ -211,6 +242,7 @@ export default async function SubmissionDetailPage({ params }: PageProps) {
             </div>
           )}
         </section>
+        }
 
         {/* Admin Notes */}
         <section className="bg-background rounded-xl border border-gray-200 p-6">

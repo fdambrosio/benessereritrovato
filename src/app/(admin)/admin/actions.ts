@@ -74,6 +74,9 @@ export async function toggleViewedAction(id: string) {
 export async function getSubmissionForCompletion(id: string) {
   const submission = await prisma.submission.findUnique({ where: { id } });
   if (!submission) return null;
+  if (submission.sixAAnswers) {
+    throw new Error('Il Test delle 6A è già completo e non usa il questionario precedente.');
+  }
   return {
     id: submission.id,
     nome: submission.nome,
@@ -108,6 +111,10 @@ interface CompleteConsultationData {
 }
 
 export async function completeConsultation(id: string, data: CompleteConsultationData) {
+  const submission = await prisma.submission.findUnique({ where: { id }, select: { sixAAnswers: true } });
+  if (!submission) throw new Error('Consulenza non trovata.');
+  if (submission.sixAAnswers) throw new Error('Non è possibile sovrascrivere un Test delle 6A con il questionario precedente.');
+
   // Recalculate all scores with the full set of answers
   const locusAnsweredCount = Object.keys(data.locusAnswers).length;
   const locusRaw = calculateRawScore(data.locusAnswers, locusOfControlTest.questions);

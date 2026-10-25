@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import { logoutAction } from '../actions';
+import { calculateSixAScores } from '@/lib/scoring/engine';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,7 @@ export default async function DashboardPage() {
       adminViewed: true,
       emailSent: true,
       isLite: true,
+      sixAAnswers: true,
     },
   });
 
@@ -74,7 +76,12 @@ export default async function DashboardPage() {
                 </thead>
                 <tbody>
                   {submissions.map((s) => {
-                    const avg = (
+                    const avg = s.sixAAnswers
+                      ? (calculateSixAScores(JSON.parse(s.sixAAnswers)).reduce((sum, area) => sum + area.normalized, 0) / 6).toFixed(0)
+                      : s.locusNormalized === null || s.eventiSaluteNormalized === null ||
+                        s.medicineAlternativeNormalized === null || s.leadershipNormalized === null
+                        ? null
+                        : (
                       (((s.locusNormalized - 25) / 75) * 100 +
                         ((s.eventiSaluteNormalized - 18) / 54) * 100 +
                         ((s.medicineAlternativeNormalized - 20) / 60) * 100 +
@@ -121,11 +128,11 @@ export default async function DashboardPage() {
                                 : 'bg-green-100 text-green-700'
                             }`}
                           >
-                            {s.isLite ? 'Lite' : 'Completa'}
+                            {s.sixAAnswers ? 'Test delle 6A' : s.isLite ? 'Lite' : 'Completa'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="font-medium text-brand-charcoal">{avg}%</span>
+                          <span className="font-medium text-brand-charcoal">{avg === null ? 'Non disponibile' : `${avg}%`}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span

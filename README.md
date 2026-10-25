@@ -8,7 +8,7 @@ Applicazione web per la raccolta di consulenze preliminari di benessere naturopa
 
 1. [Accesso rapido](#accesso-rapido)
 2. [Funzionamento dell'applicazione](#funzionamento-dellapplicazione)
-3. [Il questionario lite — scelta delle domande](#il-questionario-lite--scelta-delle-domande)
+3. [Il Test delle 6A](#il-test-delle-6a)
 4. [Metodologia scientifica e scoring](#metodologia-scientifica-e-scoring)
 5. [Interpretazione dei risultati](#interpretazione-dei-risultati)
 6. [Dashboard amministratore](#dashboard-amministratore)
@@ -35,19 +35,19 @@ Applicazione web per la raccolta di consulenze preliminari di benessere naturopa
 
 ## Funzionamento dell'applicazione
 
-### Flusso utente (versione lite)
+### Flusso utente (Test delle 6A)
 
 L'utente completa una consulenza in **4 semplici passaggi**:
 
 ```
 Step 1 — Consenso          Accetta informativa GDPR e disclaimer medico
-Step 2 — Dati personali    Nome, cognome, email (telefono opzionale)
-Step 3 — Questionario      10 domande: 8 a risposta multipla + 2 slider
+Step 2 — Dati personali    Nome
+Step 3 — Questionario      14 domande: 12 a risposta multipla + 2 slider
 Step 4 — Risultati         Profilo di benessere con radar chart + CTA prenotazione
 ```
 
 Al termine, l'applicazione:
-- calcola automaticamente i punteggi nei quattro ambiti testati
+- calcola automaticamente i punteggi nelle sei aree del metodo
 - mostra all'utente un profilo visivo (radar chart)
 - salva la consulenza nel database
 - invia una notifica email alla Dott.ssa Loprieno
@@ -65,67 +65,82 @@ Dopo il login, la Dott.ssa Loprieno accede alla dashboard dove:
 
 ---
 
-## Il questionario lite — scelta delle domande
+## Il Test delle 6A
 
-### Razionale della selezione
+Il questionario pubblico riproduce le 14 domande del documento **Test delle 6A**.
+Si risponde d'impulso pensando alla routine delle ultime settimane.
 
-La versione lite usa **10 domande** (contro le 36 della versione completa) selezionate per:
+| Area | Domande |
+|---|---|
+| Alimentazione | 1–2 |
+| Attività Fisica | 3–4 |
+| Atteggiamento Mentale (Emozioni e Stress) | 5–6 |
+| Attività Mentale (Focus e Igiene Digitale) | 7–8 |
+| Ambiente | 9–10 |
+| Affettività e Relazioni | 11–12 |
 
-1. **Massimizzare le conversioni**: ogni domanda aggiuntiva aumenta il tasso di abbandono. 10 domande su 1 pagina richiedono circa 3 minuti.
-2. **Copertura bilanciata**: 2 domande per ogni area testata assicurano un campione rappresentativo.
-3. **Polarità bipolare**: per ogni area si usano 1 domanda in scala "discendente" (d'accordo = punteggio alto) e 1 in scala "inversa" (d'accordo = punteggio basso) per evitare bias da risposta acquiescente.
-4. **Comprensibilità**: le domande scelte sono le più chiare e autonome, comprensibili senza il contesto dell'intero questionario.
+### Risposte e punteggi
 
-### Le 10 domande selezionate
-
-#### Autoefficacia / Locus of Control (2 domande)
-
-| N. | Testo | Scala |
+| Risposta | Domande problema (dispari) | Domande risorsa (pari) |
 |---|---|---|
-| 1 | *"Sono convinto/a che per avere successo nella vita occorrano impegno e costanza"* | Discendente (accordo = controllo interno) |
-| 25 | *"A volte penso che la mia vita sia determinata in larga parte dal destino"* | Inversa (accordo = controllo esterno) |
+| A — Quasi sempre / Molto spesso | 1 | 4 |
+| B — Spesso | 2 | 3 |
+| C — Raramente | 3 | 2 |
+| D — Quasi mai / Mai | 4 | 1 |
 
-**Perché queste?** Coprono i due poli del costrutto: autodeterminazione attiva (Q1) e fatalismo passivo (Q25). Entrambe sono formulate in modo diretto e comprensibile.
+Ogni area somma due risposte: **2–8 punti**, con valori alti associati a maggiore
+benessere percepito. Il radar mostra esclusivamente le sei aree, trasformate su
+scala 0–100 con `(punteggio − 2) / 6 × 100`.
+Il PDF non definisce soglie cliniche o fasce interpretative: non vengono aggiunte.
+Le aree con punteggio minimo sono proposte come priorità relative; a parità di tutte
+le aree non si conclude che il benessere sia necessariamente elevato.
 
-#### Salute e Benessere / Controllo della Salute (2 domande)
+Le domande 13 e 14 sono slider interi da **1 (Per niente) a 10 (Completamente)**:
 
-| N. | Testo | Scala |
-|---|---|---|
-| 5 | *"Credo di poter far molto per conservare una buona salute"* | Discendente (accordo = agency sulla salute) |
-| 8 | *"La buona salute è in larga parte una questione di fortuna"* | Inversa (accordo = fatalismo sulla salute) |
+- «Complessivamente, in questo periodo mi sento stressato/a.»
+- «In generale mi considero una persona felice e appagata.»
 
-**Perché queste?** Tematicamente centrali al benessere naturopatico. Valutano la percezione di controllo sulla propria salute, predittore chiave dell'aderenza a percorsi di benessere.
+Sono mostrate separatamente dal radar. Si conserva la media di benessere già usata
+dall'app: `((11 − stress) + felicità) / 2`; questa media è una convenzione
+dell'applicazione, non una soglia o un indice validato dal PDF.
 
-#### Medicine Alternative (2 domande)
+Testi, polarità e validazione sono in [six-a.ts](src/data/six-a.ts);
+i calcoli rimangono in [engine.ts](src/lib/scoring/engine.ts).
+La server action richiede esattamente le 12 risposte ABCD e i due slider validi,
+rifiutando domande mancanti, sconosciute o valori fuori scala.
 
-| N. | Testo | Scala |
-|---|---|---|
-| 4 | *"Il fatto stesso che una terapia alternativa esista e sia praticata da millenni significa che è valida ed efficace"* | Inversa (accordo = pensiero magico) |
-| 6 | *"Non è vero che i rimedi naturali non hanno effetti collaterali e controindicazioni"* | Discendente (accordo = consapevolezza critica) |
+### Persistenza e compatibilità
 
-**Perché queste?** Rilevano la postura epistemica del paziente verso le medicine integrative. Un paziente con punteggio basso in quest'area (eccessivamente credulo o eccessivamente scettico) richiede un approccio consulenziale diverso.
+Le risposte sono salvate nel campo dedicato `Submission.sixAAnswers`; i punteggi
+dei vecchi test rimangono nulli per non attribuire significati non pertinenti.
+Le consulenze precedenti e il relativo completamento restano disponibili.
+Il Test delle 6A è completo con 14 domande e non può essere sovrascritto dal
+completamento del vecchio questionario.
 
-#### Autonomia / Leadership (2 domande)
+Prima di distribuire il codice, applicare la migrazione **PostgreSQL** al database
+previsto per l'ambiente, dopo il backup:
 
-| N. | Testo | Scala |
-|---|---|---|
-| 11 | *"Se sono convinto razionalmente di qualcosa, è difficile farmi cambiare idea e perseguo il mio scopo con determinazione"* | Discendente (accordo = autonomia decisionale) |
-| 20 | *"Senza l'aiuto di persone esperte e competenti, è difficile costruire una vita conforme alle proprie esigenze e desideri"* | Inversa (accordo = dipendenza da esperti) |
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
 
-**Perché queste?** Valutano la capacità di autodeterminazione del paziente. Un paziente con alta autonomia tende ad aderire meglio a percorsi di benessere auto-gestiti.
+Non usare le vecchie indicazioni SQLite riportate più avanti per questa migrazione.
+La notifica email del nuovo test contiene solo il link all'area riservata,
+senza nome, risposte o punteggi.
 
-#### Autovalutazione del Benessere (2 slider 1-10)
+Verifica locale di domande, polarità, punteggi e validazione:
 
-| ID | Testo | Tipo |
-|---|---|---|
-| `stress` | *"Sono stressato/a in generale"* | Negativo (il valore è invertito nel calcolo: 11 − valore) |
-| `felicita` | *"In generale mi considero una persona felice"* | Positivo |
-
-**Perché questi due?** Stress e felicità soggettiva sono i due predittori più robusti e immediati del benessere psicobiologico percepito. Gli slider (scala 1-10) raccolgono una risposta sfumata e analogica piuttosto che categorica.
+```bash
+node --test tests/six-a.test.mjs
+```
 
 ---
 
 ## Metodologia scientifica e scoring
+
+**Sezione storica:** le regole seguenti descrivono i questionari precedenti,
+non il Test delle 6A.
 
 ### Scala delle risposte ABCD
 
@@ -177,6 +192,8 @@ Il risultato è una scala 1-10 dove **10 = massimo benessere percepito**.
 
 ## Interpretazione dei risultati
 
+**Sezione storica:** le fasce seguenti restano associate solo ai vecchi test.
+
 Ogni test ha fasce di interpretazione definite sul punteggio normalizzato:
 
 - **Fascia bassa** → segnalazione di possibile area di lavoro
@@ -212,8 +229,8 @@ Dopo il login viene mostrata la lista di tutte le consulenze:
 | Data | Data e ora di compilazione |
 | Nome | Link al dettaglio della consulenza |
 | Email | Indirizzo del paziente |
-| Tipo | **Lite** (arancio) o **Completa** (verde) |
-| Media punteggi | Percentuale media dei 5 ambiti |
+| Tipo | **Test delle 6A**, oppure **Lite** / **Completa** per i questionari precedenti |
+| Media punteggi | Media delle sei aree per il Test delle 6A, dei 5 ambiti per i vecchi questionari |
 | Email | Stato notifica email (inviata / non inviata) |
 
 ### Dettaglio consulenza
@@ -225,6 +242,9 @@ Cliccando su un nome si apre il dettaglio con:
 - **Autovalutazione** con media e dettaglio per item
 - **Stile di vita** (compilato solo nelle consulenze complete)
 - **Note private** — campo di testo riservato alla Dott.ssa Loprieno
+
+Per il Test delle 6A il dettaglio mostra invece le sei aree, le 12 risposte
+originali e l'autovalutazione globale, senza il banner di completamento storico.
 
 ### Completare una consulenza lite
 
@@ -264,8 +284,8 @@ Il login admin (`/admin/login`) applica un rate limiter in-memory che blocca l'I
 
 ### Validazione input con Zod
 
-La server action `submitConsultation` valida tutti i dati in ingresso con Zod:
-- Dati personali: nome/cognome (1-100 caratteri), email valida, telefono opzionale (max 20 caratteri)
+La server action `submitSixAConsultation` valida tutti i dati in ingresso con Zod:
+- Dati personali: nome (1-100 caratteri)
 - Risposte test: valori `A`, `B`, `C`, `D`
 - Slider autovalutazione: numeri interi da 1 a 10
 
@@ -449,7 +469,7 @@ src/
 │   ├── (consultation)/           Flusso wizard utente
 │   │   ├── consenso/             Step 1: consenso GDPR
 │   │   ├── dati-personali/       Step 2: dati personali
-│   │   ├── questionario/         Step 3: 10 domande lite
+│   │   ├── questionario/         Step 3: Test delle 6A (14 domande)
 │   │   ├── risultati/            Step 4: risultati e radar chart
 │   │   └── actions.ts            Server action: salvataggio, scoring, validazione Zod
 │   ├── (admin)/admin/
@@ -470,7 +490,7 @@ src/
 │   └── ...                       UI components (Card, Button, ProgressBar, ecc.)
 │
 ├── data/
-│   ├── lite-questions.ts         10 domande selezionate per il lite
+│   ├── lite-questions.ts         Selezione storica del questionario lite
 │   ├── self-assessment.ts        10 item autovalutazione (versione completa)
 │   ├── lifestyle.ts              Abitudini alimentari e stile di vita
 │   └── tests/                    Test completi (25+18+20+20 domande)

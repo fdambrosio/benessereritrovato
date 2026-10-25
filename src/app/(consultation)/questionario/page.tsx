@@ -7,23 +7,18 @@ import RadioGroup from '@/components/ui/RadioGroup';
 import SliderScale from '@/components/ui/SliderScale';
 import { useWizard } from '@/context/WizardContext';
 import { WIZARD_STEPS } from '@/types/wizard';
-import { liteAbcdQuestions, liteSelfAssessmentItems, groupLiteQuestionsByTest } from '@/data/lite-questions';
-import { submitConsultation } from '../actions';
+import { sixAAreas, sixAOptions, sixASelfAssessmentItems, sixAAnswerSchema, sixAAnswersSchema, sixASelfAssessmentSchema } from '@/data/six-a';
+import { submitSixAConsultation } from '../actions';
 import type { AnswerValue } from '@/types/test';
-
-const ABCD_OPTIONS = [
-  { value: 'A', label: 'Molto d\'accordo' },
-  { value: 'B', label: 'Abbastanza d\'accordo' },
-  { value: 'C', label: 'Poco d\'accordo' },
-  { value: 'D', label: 'Per niente d\'accordo' },
-];
 
 export default function QuestionarioPage() {
   const router = useRouter();
-  const { state, setLocusAnswers, setEventiSaluteAnswers, setMedicineAlternativeAnswers, setLeadershipAnswers, setSelfAssessmentAnswers, setCurrentStep } = useWizard();
+  const { state, setSixAAnswers, setSelfAssessmentAnswers, setCurrentStep } = useWizard();
 
-  const [abcdAnswers, setAbcdAnswers] = useState<Record<string, AnswerValue>>({});
-  const [sliderAnswers, setSliderAnswers] = useState<Record<string, number>>({});
+  const [abcdAnswers, setAbcdAnswers] = useState<Record<number, AnswerValue>>(state.sixAAnswers ?? {});
+  const [sliderAnswers, setSliderAnswers] = useState<Record<string, number>>(
+    state.sixAAnswers ? state.selfAssessmentAnswers ?? {} : {},
+  );
   const [attempted, setAttempted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -32,29 +27,24 @@ export default function QuestionarioPage() {
     setCurrentStep(2);
   }, [setCurrentStep]);
 
-  const groupedQuestions = groupLiteQuestionsByTest();
-
-  const testGroupLabels: Record<string, string> = {
-    'locus-of-control': 'Autoefficacia',
-    'eventi-salute': 'Salute e Benessere',
-    'medicine-alternative': 'Medicine Alternative',
-    'leadership': 'Autonomia',
-  };
-
-  const allAbcdAnswered = liteAbcdQuestions.every(
-    (q) => abcdAnswers[`${q.testId}-${q.question.id}`]
+  const allAbcdAnswered = sixAAreas.every(
+    (area) => area.questions.every((q) => abcdAnswers[q.id])
   );
-  const allSlidersAnswered = liteSelfAssessmentItems.every(
+  const allSlidersAnswered = sixASelfAssessmentItems.every(
     (item) => sliderAnswers[item.id] !== undefined
   );
   const isComplete = allAbcdAnswered && allSlidersAnswered;
 
-  const handleAbcdAnswer = (testId: string, questionId: number, value: AnswerValue) => {
-    setAbcdAnswers((prev) => ({ ...prev, [`${testId}-${questionId}`]: value }));
+  const handleAbcdAnswer = (questionId: number, value: AnswerValue) => {
+    const updated = { ...abcdAnswers, [questionId]: value };
+    setAbcdAnswers(updated);
+    setSixAAnswers(updated);
   };
 
   const handleSliderAnswer = (itemId: string, value: number) => {
-    setSliderAnswers((prev) => ({ ...prev, [itemId]: value }));
+    const updated = { ...sliderAnswers, [itemId]: value };
+    setSliderAnswers(updated);
+    setSelfAssessmentAnswers(updated);
   };
 
   const handleSubmit = async () => {
@@ -69,55 +59,17 @@ export default function QuestionarioPage() {
     setSubmitError('');
 
     try {
-      // Distribute ABCD answers into 4 separate test records
-      const locusAnswers: Record<number, AnswerValue> = {};
-      const eventiSaluteAnswers: Record<number, AnswerValue> = {};
-      const medicineAlternativeAnswers: Record<number, AnswerValue> = {};
-      const leadershipAnswers: Record<number, AnswerValue> = {};
-
-      for (const q of liteAbcdQuestions) {
-        const answer = abcdAnswers[`${q.testId}-${q.question.id}`];
-        if (!answer) continue;
-        switch (q.testId) {
-          case 'locus-of-control':
-            locusAnswers[q.question.id] = answer;
-            break;
-          case 'eventi-salute':
-            eventiSaluteAnswers[q.question.id] = answer;
-            break;
-          case 'medicine-alternative':
-            medicineAlternativeAnswers[q.question.id] = answer;
-            break;
-          case 'leadership':
-            leadershipAnswers[q.question.id] = answer;
-            break;
-        }
-      }
-
-      // Save to wizard context
-      setLocusAnswers(locusAnswers);
-      setEventiSaluteAnswers(eventiSaluteAnswers);
-      setMedicineAlternativeAnswers(medicineAlternativeAnswers);
-      setLeadershipAnswers(leadershipAnswers);
-      setSelfAssessmentAnswers(sliderAnswers);
-
-      // Submit to server
-      const result = await submitConsultation({
+      const result = await submitSixAConsultation({
         personalData: state.personalData,
-        locusAnswers,
-        eventiSaluteAnswers,
-        medicineAlternativeAnswers,
-        leadershipAnswers,
-        selfAssessmentAnswers: sliderAnswers,
-        isLite: true,
+        sixAAnswers: sixAAnswersSchema.parse(abcdAnswers),
+        selfAssessmentAnswers: sixASelfAssessmentSchema.parse(sliderAnswers),
       });
 
       // Store result for the results page
       sessionStorage.setItem('submission-result', JSON.stringify(result));
 
       router.push(WIZARD_STEPS[3].path);
-    } catch (error) {
-      console.error('Submission error:', error);
+    } catch {
       setSubmitError('Si è verificato un errore. Riprova.');
     } finally {
       setIsSubmitting(false);
@@ -130,8 +82,8 @@ export default function QuestionarioPage() {
 
   return (
     <WizardShell
-      title="Questionario"
-      subtitle="Rispondi alle seguenti domande in base a come ti senti abitualmente. Non ci sono risposte giuste o sbagliate."
+      title="Test delle 6A"
+      subtitle="Rispondi d'impulso pensando alla tua routine delle ultime settimane."
       currentStep={2}
       onBack={handleBack}
       onNext={handleSubmit}
@@ -140,27 +92,27 @@ export default function QuestionarioPage() {
       isLoading={isSubmitting}
     >
       <div className="space-y-8">
-        {/* ABCD Questions grouped by test area */}
-        {Array.from(groupedQuestions.entries()).map(([testId, questions]) => (
-          <div key={testId}>
+        {sixAAreas.map((area) => (
+          <div key={area.id}>
             <h3 className="text-sm font-semibold text-brand-purple uppercase tracking-wider mb-4">
-              {testGroupLabels[testId] || testId}
+              {area.label}
             </h3>
             <div className="space-y-5">
-              {questions.map((q, idx) => {
-                const key = `${q.testId}-${q.question.id}`;
-                const hasError = attempted && !abcdAnswers[key];
+              {area.questions.map((q) => {
+                const key = `six-a-${q.id}`;
+                const hasError = attempted && !abcdAnswers[q.id];
                 return (
                   <div key={key}>
                     <p className="text-sm text-brand-charcoal mb-2.5 leading-relaxed">
-                      <span className="font-medium text-brand-dark">{idx + 1}.</span>{' '}
-                      {q.question.text}
+                      <span className="font-medium text-brand-dark">{q.id}.</span>{' '}
+                      {q.text}
                     </p>
                     <RadioGroup
                       name={key}
-                      value={abcdAnswers[key]}
-                      onChange={(v) => handleAbcdAnswer(q.testId, q.question.id, v as AnswerValue)}
-                      options={ABCD_OPTIONS}
+                      value={abcdAnswers[q.id]}
+                      onChange={(v) => handleAbcdAnswer(q.id, sixAAnswerSchema.parse(v))}
+                      options={sixAOptions}
+                      showOptionLabels
                       error={hasError}
                     />
                     {hasError && (
@@ -176,17 +128,18 @@ export default function QuestionarioPage() {
         {/* Self Assessment Sliders */}
         <div>
           <h3 className="text-sm font-semibold text-brand-purple uppercase tracking-wider mb-4">
-            Autovalutazione
+            Autovalutazione Globale
           </h3>
           <p className="text-xs text-brand-gray-medium mb-4">
             Indica il tuo grado di accordo su una scala da 1 (per niente) a 10 (completamente).
           </p>
           <div className="space-y-5">
-            {liteSelfAssessmentItems.map((item) => {
+            {sixASelfAssessmentItems.map((item, idx) => {
               const hasError = attempted && sliderAnswers[item.id] === undefined;
               return (
                 <div key={item.id}>
                   <p className="text-sm text-brand-charcoal mb-2.5 leading-relaxed">
+                    <span className="font-medium text-brand-dark">{13 + idx}.</span>{' '}
                     {item.text}
                   </p>
                   <SliderScale
